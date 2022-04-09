@@ -8,9 +8,19 @@ using System.Web.Http;
 using Newtonsoft.Json.Linq;
 
 namespace WebApi_Link.Controllers {
-	public class LinksController : ApiController {
-		// GET api/<controller>
-		public dynamic Get([FromUri] string name = null) {
+	public class Session1Controller : ApiController {
+		[HttpGet]
+		public dynamic GetGrades() {
+			try {
+				var data = Utils.ExecuteQuery("SELECT Id,Grade FROM Grades");
+				return new { result = "Successful", data = data };
+			} catch (Exception e) {
+				return new { result = "Error", reason = e.Message };
+			}
+		}
+
+		[HttpGet]
+		public dynamic GetLinks([FromUri] string name = null) {
 			if (string.IsNullOrWhiteSpace(name)) {
 				name = null;
 			}
@@ -33,8 +43,8 @@ namespace WebApi_Link.Controllers {
 			}
 		}
 
-		// GET api/<controller>/5
-		public dynamic Get(int id, [FromUri(Name = "limited-photo")] bool limitedPhoto = false) {
+		[HttpGet]
+		public dynamic GetLink(int id, [FromUri(Name = "limited-photo")] bool limitedPhoto = false) {
 			try {
 				var dt = Utils.ExecuteQuery("SELECT Links.Id as Id,SiteName,Url,GradeId,Grade as GradeName,Beizhu,Time FROM Links,Grades WHERE GradeId=Grades.Id AND Links.Id=@0", id);
 				if (dt.Rows.Count == 0) {
@@ -62,13 +72,13 @@ namespace WebApi_Link.Controllers {
 				}
 
 				return new { result = "Successful", data = data };
-			}catch(Exception e) {
+			} catch (Exception e) {
 				return new { result = "Error", reason = e.Message };
 			}
 		}
 
-		// POST api/<controller>
-		public dynamic Post() {
+		[HttpPost]
+		public dynamic AddLink() {
 			try {
 				string body = Request.Content.ReadAsStringAsync().Result;
 
@@ -95,9 +105,8 @@ namespace WebApi_Link.Controllers {
 			}
 		}
 
-		// PUT api/<controller>/5
-		[HttpPut]
-		public dynamic Put(int id) {
+		[HttpPost]
+		public dynamic EditLink(int id) {
 			try {
 				string body = Request.Content.ReadAsStringAsync().Result;
 				JObject bodyObj = JObject.Parse(body);
